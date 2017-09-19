@@ -10,7 +10,7 @@ import threading
 HOST = "127.0.0.1"
 PORT = 7000
 
-buff = []
+buff = ''
 
 
 def thread_epoll():
@@ -29,12 +29,26 @@ def thread_epoll():
 
 
 def handle_socketdata():
+    global buff
     data = s.recv(1024)
     if data:
-        buff.extend(data)
-    print(buff)
+        buff += data
+    process_buff()
     print('>>>', end='')
     sys.stdout.flush()
+
+
+def process_buff():
+    global buff
+    while(len(buff) >= 2):
+        len_byte = buff[:2]
+        data_len = struct.unpack('>H', len_byte)[0]
+        if len(buff) < data_len + 2:
+            return
+        data = struct.unpack('>{}s'.format(data_len), buff[2:2+data_len])[0]
+        buff = buff[2+data_len:]
+        print(data)
+
 
 handlers = {}
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -44,6 +44,7 @@ end
 
 function send_package(msg)
 	data = string.pack(">s2", msg)
+	skynet.error("send_package", msg, data)
 	for fd, _ in pairs(agents) do
 		socket.write(fd, data)
 	end
