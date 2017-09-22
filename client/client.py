@@ -60,5 +60,7 @@ while True:
     data = raw_input('>>>')
     if data == 'quit':
         os._exit(0)
+    if not data.startswith('c:'):
+        data = 'd:' + data
     data = struct.pack(">H{}s".format(len(data)), len(data), data)
     s.sendall(data)
