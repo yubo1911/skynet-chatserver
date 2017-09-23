@@ -33,6 +33,9 @@ def handle_socketdata():
     data = s.recv(1024)
     if data:
         buff += data
+    else:
+        print('Server disconnected')
+        os._exit(0)
     process_buff()
     print('>>>', end='')
     sys.stdout.flush()
