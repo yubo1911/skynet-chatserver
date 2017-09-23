@@ -1,10 +1,10 @@
 # skynet-chatserver
-a simple chat server use skynet
+a simple chat server use skynet  
 
-git submodule update --init --recursive
-cd skynet
-make linux
-cd ..
+git submodule update --init --recursive  
+cd skynet  
+make linux  
+cd ..  
 
 # server
 skynet/skynet chat/config.lua
