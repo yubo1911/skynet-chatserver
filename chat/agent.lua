@@ -1,18 +1,18 @@
 local skynet = require "skynet"
 
 local CMD = {}
+local LUA_CMD = {}
 
-local fd, cur_room = ...
-local client_name = fd
+local CONF = {}
 
 function CMD.name(new_name)
-	client_name = new_name
+	CONF.client_name = new_name
 end
 
 function CMD.room(new_room)
-	local old_room = cur_room
-	skynet.call('.server', 'lua', 'room', fd, old_room, new_room) 
-	cur_room = new_room
+	local old_room = CONF.cur_room
+	skynet.call('.server', 'lua', 'room', CONF.fd, old_room, new_room) 
+	CONF.cur_room = new_room
 end
 
 function process_cmd(content)
@@ -23,20 +23,25 @@ function process_cmd(content)
 			f(v)
 		end
 	end
-
 end
 
 function process_data(data)
 	prefix = string.sub(data, 1, 2)
 	content = string.sub(data, 3)
 	if prefix == 'd:' then
-		content = 'client ['..client_name..'] says: '..content
-		skynet.call('.server', 'lua', 'broadcast', cur_room, content) 
+		content = 'client ['..CONF.client_name..'] says: '..content
+		skynet.call('.server', 'lua', 'broadcast', CONF.cur_room, content) 
 	else
 		if prefix == 'c:' then
 			process_cmd(content)
 		end
 	end
+end
+
+function LUA_CMD.init(conf)
+	CONF.fd = conf.fd
+	CONF.cur_room = conf.cur_room
+	CONF.client_name = conf.client_name
 end
 
 skynet.register_protocol {
@@ -51,5 +56,8 @@ skynet.register_protocol {
 }
 --服务入口
 skynet.start(function()
-	--skynet.call('.server', 'lua', 'room', fd, "None", cur_room) 
+	skynet.dispatch("lua", function(session, source, cmd, ...)
+		local f = assert(LUA_CMD[cmd])
+		skynet.ret(skynet.pack(f(...)))
+	end)
 end)
