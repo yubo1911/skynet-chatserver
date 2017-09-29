@@ -15,6 +15,18 @@ function CMD.room(new_room)
 	CONF.cur_room = new_room
 end
 
+function CMD.busy(t)
+	t = tonumber(t)
+	cur_time = os.time()
+	skynet.error(CONF.client_name, 'in busy loop')
+	while true do
+		if os.time() - cur_time > t then
+			break
+		end
+	end
+	skynet.error(CONF.client_name, 'out busy loop')
+end
+
 function process_cmd(content)
 	pattern = "(%w+)=(%w+)"
 	for k, v in string.gmatch(content, pattern) do
